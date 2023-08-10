@@ -11,7 +11,9 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
-  fluttertoast: ^8.2.2
+  image_picker: ^1.0.2
+  bottom_sheet: ^3.1.2
+
 
 dev_dependencies:
   flutter_test:
