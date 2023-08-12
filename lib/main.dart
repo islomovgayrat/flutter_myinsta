@@ -28,11 +28,6 @@ class MyApp extends StatelessWidget {
         SignInPage.id: (_) => const SignInPage(),
         SignUpPage.id: (_) => const SignUpPage(),
         HomePage.id: (_) => const HomePage(),
-        MyFeedPage.id: (_) => const MyFeedPage(),
-        MySearchPage.id: (_) => const MySearchPage(),
-        MyUploadPage.id: (_) => const MyUploadPage(),
-        MyLikePage.id: (_) => const MyLikePage(),
-        MyProfilePage.id: (_) => const MyProfilePage(),
       },
     );
   }

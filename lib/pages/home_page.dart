@@ -30,12 +30,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: PageView(
         controller: pageController,
-        children: const [
-          MyFeedPage(),
-          MySearchPage(),
-          MyUploadPage(),
-          MyLikePage(),
-          MyProfilePage(),
+        children: [
+          MyFeedPage(pageController: pageController),
+          const MySearchPage(),
+          MyUploadPage(pageController: pageController),
+          const MyLikePage(),
+          const MyProfilePage(),
         ],
         onPageChanged: (int index) {
           setState(() {

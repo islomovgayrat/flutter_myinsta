@@ -6,7 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import '../services/bottom_sheet.dart';
 
 class MyUploadPage extends StatefulWidget {
-  const MyUploadPage({super.key});
+  PageController pageController = PageController();
+  MyUploadPage({super.key, required this.pageController});
   static const String id = 'upload_id';
 
   @override
@@ -14,6 +15,25 @@ class MyUploadPage extends StatefulWidget {
 }
 
 class _MyUploadPageState extends State<MyUploadPage> {
+  uploadPost() {
+    String caption = captionController.text.toString().trim();
+    if (image == null || caption.isEmpty) return;
+    moveToFeed();
+  }
+
+  moveToFeed() {
+    setState(() {
+      isLoading = false;
+    });
+    captionController.text = '';
+    image = null;
+    widget.pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeIn,
+    );
+  }
+
   var isLoading = false;
   final ImagePicker picker = ImagePicker();
   File? image;
@@ -163,6 +183,7 @@ class _MyUploadPageState extends State<MyUploadPage> {
                     ),
                   ),
 
+                  //caption
                   Container(
                     margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
                     child: TextField(
@@ -201,7 +222,9 @@ class _MyUploadPageState extends State<MyUploadPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              uploadPost();
+            },
             icon: const Icon(
               Icons.drive_folder_upload,
               color: Color.fromRGBO(245, 96, 64, 1),
@@ -209,60 +232,4 @@ class _MyUploadPageState extends State<MyUploadPage> {
           ),
         ],
       );
-}
-
-class BottomSheetExample extends StatelessWidget {
-  //const BottomSheetExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        child: const Text('showModalBottomSheet'),
-        onPressed: () {
-          showModalBottomSheet<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return Container(
-                color: Colors.white,
-                child: const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.photo,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Take Photo",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.photo_camera,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Take Photo",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
 }
