@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
-import '../post_model.dart';
+import '../models/post_model.dart';
 
 class MyFeedPage extends StatefulWidget {
   PageController pageController = PageController();
