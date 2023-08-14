@@ -1,15 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_myinsta/pages/home_page.dart';
-import 'package:flutter_myinsta/pages/my_feed_page.dart';
-import 'package:flutter_myinsta/pages/my_like_page.dart';
-import 'package:flutter_myinsta/pages/my_profile_page.dart';
-import 'package:flutter_myinsta/pages/my_search_page.dart';
-import 'package:flutter_myinsta/pages/my_upload_page.dart';
 import 'package:flutter_myinsta/pages/signin_page.dart';
 import 'package:flutter_myinsta/pages/signup_page.dart';
 import 'package:flutter_myinsta/pages/splash_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

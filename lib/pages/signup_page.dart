@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_myinsta/pages/signin_page.dart';
+import 'package:flutter_myinsta/services/auth_service.dart';
 
 import 'home_page.dart';
 
@@ -12,6 +14,8 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  var isLoading = false;
+
   var fullNameController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -26,6 +30,20 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if (cPassword != password) return;
 
+    setState(() {
+      isLoading = true;
+    });
+
+    AuthService.signUpUser(fullName, email, password).then((value) => {
+          responseSignUp(value!),
+        });
+    //Navigator.pushReplacementNamed(context, HomePage.id);
+  }
+
+  responseSignUp(User firebaseUser) {
+    setState(() {
+      isLoading = false;
+    });
     Navigator.pushReplacementNamed(context, HomePage.id);
   }
 

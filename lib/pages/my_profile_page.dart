@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/auth_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/post_model.dart';
@@ -79,7 +79,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              AuthService.signOutUser(context);
+            },
             icon: const Icon(Icons.exit_to_app),
             color: const Color.fromRGBO(193, 53, 132, 1),
           ),
@@ -285,6 +287,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                //list or grid
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
