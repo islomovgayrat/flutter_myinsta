@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/member_model.dart';
 
@@ -15,14 +16,27 @@ class _MySearchPageState extends State<MySearchPage> {
   var isLoading = false;
   TextEditingController searchController = TextEditingController();
 
+  apiSearchMember(String keyword) {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.searchMember(keyword).then((users) => {
+          respSearchMembers(users),
+        });
+  }
+
+  respSearchMembers(List<Member> members) {
+    setState(() {
+      items = members;
+      isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Member('gayratjon', 'gayratjon@gmail.com'));
-    items.add(Member('marie', 'gayratjon@gmail.com'));
-    items.add(Member('gayratjon', 'gayratjon@gmail.com'));
-    items.add(Member('gayratjon', 'gayratjon@gmail.com'));
+    apiSearchMember('');
   }
 
   @override
@@ -99,16 +113,21 @@ class _MySearchPageState extends State<MySearchPage> {
                     color: const Color.fromRGBO(245, 96, 64, 1),
                   ),
                 ),
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/img.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22.5),
+                  child: member.imgUrl.isEmpty
+                      ? const Image(
+                          image: AssetImage('assets/images/img.png'),
+                          fit: BoxFit.cover,
+                          height: 45,
+                          width: 45,
+                        )
+                      : Image.network(
+                          member.imgUrl,
+                          fit: BoxFit.cover,
+                          height: 45,
+                          width: 45,
+                        ),
                 ),
               ),
               const SizedBox(width: 10),

@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_myinsta/pages/home_page.dart';
@@ -13,7 +14,6 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-
   var isLoading = false;
 
   var emailController = TextEditingController();
@@ -22,17 +22,19 @@ class _SignInPageState extends State<SignInPage> {
   doSignIn() {
     String email = emailController.text.toString().trim();
     String password = passwordController.text.toString().trim();
-    if (email.isEmpty || password.isEmpty) return;
+    if (email.isEmpty || password.isEmpty) {
+      return;
+    }
     setState(() {
       isLoading = true;
     });
     AuthService.signInUser(email, password).then((value) => {
-      responseSignIn(value!),
-    });
+          responseSignIn(value!),
+        });
     //Navigator.pushReplacementNamed(context, HomePage.id);
   }
 
-  responseSignIn(User firebaseUser){
+  responseSignIn(User firebaseUser) {
     setState(() {
       isLoading = false;
     });

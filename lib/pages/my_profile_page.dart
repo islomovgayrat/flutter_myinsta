@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/models/member_model.dart';
 import 'package:flutter_myinsta/services/auth_service.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
+import 'package:flutter_myinsta/services/file_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/post_model.dart';
@@ -23,7 +26,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   List<Post> items = [];
   final ImagePicker picker = ImagePicker();
 
-  String fullName = 'Gayrat', email = 'gayrat@gmail.com', imgUrl = '';
+  String fullName = '', email = '', imgUrl = '';
   int countPosts = 0, countFollowers = 0, countFollowing = 0;
 
   String image_1 =
@@ -39,6 +42,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     setState(() {
       image = File(pickedFile!.path);
     });
+    apiChangePhoto();
   }
 
   imgFromGallery2() async {
@@ -46,6 +50,42 @@ class _MyProfilePageState extends State<MyProfilePage> {
         await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
     setState(() {
       image = File(pickedFile!.path);
+    });
+    apiChangePhoto();
+  }
+
+  apiChangePhoto() {
+    if (image == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadUserImage(image!).then((downloadUrl) => {
+          apiUpdateUser(downloadUrl),
+        });
+  }
+
+  apiUpdateUser(String downloadUrl) async {
+    Member member = await DBService.loadMember();
+    member.imgUrl = downloadUrl;
+    await DBService.updateMember(member);
+    apiLoadMember();
+  }
+
+  apiLoadMember() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadMember().then((value) => {
+          showMemberInfo(value),
+        });
+  }
+
+  showMemberInfo(Member member) {
+    setState(() {
+      isLoading = false;
+      fullName = member.fullName;
+      email = member.email;
+      imgUrl = member.imgUrl;
     });
   }
 
@@ -59,6 +99,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     items.add(Post(image_1, 'The best photo I have ever seen'));
     items.add(Post(image_2, 'The best photo I have ever taken'));
     items.add(Post(image_3, 'The best photo I have ever shown'));
+    apiLoadMember();
   }
 
   @override
@@ -165,15 +206,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(70),
-                          child: image == null
+                          child: imgUrl == null || imgUrl.isEmpty
                               ? Image.asset(
                                   'assets/images/img.png',
                                   fit: BoxFit.cover,
                                   height: 70,
                                   width: 70,
                                 )
-                              : Image.file(
-                                  image!,
+                              : Image.network(
+                                  imgUrl,
                                   fit: BoxFit.cover,
                                   height: 70,
                                   width: 70,
