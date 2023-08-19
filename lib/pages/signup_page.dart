@@ -24,8 +24,6 @@ class _SignUpPageState extends State<SignUpPage> {
   var passwordController = TextEditingController();
   var cPasswordController = TextEditingController();
 
-  GlobalKey<FormState> formKey = GlobalKey();
-
   validate(String email) {
     bool isValid = EmailValidator.validate(email);
     //print(isValid);
@@ -80,165 +78,156 @@ class _SignUpPageState extends State<SignUpPage> {
             ],
           ),
         ),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Instagram",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 45,
-                        fontFamily: "Billabong",
-                      ),
-                    ),
-
-                    //fullName
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: const Color(0xFFFAA269),
-                      ),
-                      child: TextFormField(
-                        controller: fullNameController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: "Fullname",
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.white54),
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter name';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-
-                    //email
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: const Color(0xFFFAA269),
-                      ),
-                      child: TextField(
-                        controller: emailController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: "Email",
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                    ),
-
-                    //password
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: const Color(0xFFFAA269),
-                      ),
-                      child: TextField(
-                        controller: passwordController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: "Password",
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                    ),
-
-                    //cPassword
-                    Container(
-                      height: 50,
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        color: const Color(0xFFFAA269),
-                      ),
-                      child: TextField(
-                        controller: cPasswordController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
-                          hintText: "Confirm Password",
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                    ),
-
-                    //signUp - button
-                    GestureDetector(
-                      onTap: doSignUp,
-                      child: Container(
-                        height: 50,
-                        margin: const EdgeInsets.only(top: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(7),
-                          //color: const Color(0xFFFAA269),
-                          border: Border.all(
-                            color: const Color(0xFFFAA269),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "Sign Up",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Already have an account?",
+                    "Instagram",
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 45,
+                      fontFamily: "Billabong",
                     ),
                   ),
-                  const SizedBox(width: 5),
+
+                  //fullName
+                  Container(
+                    height: 50,
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      color: const Color(0xFFFAA269),
+                    ),
+                    child: TextField(
+                      controller: fullNameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: "Fullname",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                  ),
+
+                  //email
+                  Container(
+                    height: 50,
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      color: const Color(0xFFFAA269),
+                    ),
+                    child: TextField(
+                      controller: emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: "Email",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                  ),
+
+                  //password
+                  Container(
+                    height: 50,
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      color: const Color(0xFFFAA269),
+                    ),
+                    child: TextField(
+                      controller: passwordController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: "Password",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                  ),
+
+                  //cPassword
+                  Container(
+                    height: 50,
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7),
+                      color: const Color(0xFFFAA269),
+                    ),
+                    child: TextField(
+                      controller: cPasswordController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: "Confirm Password",
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(color: Colors.white54),
+                      ),
+                    ),
+                  ),
+
+                  //signUp - button
                   GestureDetector(
-                    onTap: callSignInPage,
-                    child: const Text(
-                      "Sign In",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                    onTap: doSignUp,
+                    child: Container(
+                      height: 50,
+                      margin: const EdgeInsets.only(top: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(7),
+                        //color: const Color(0xFFFAA269),
+                        border: Border.all(
+                          color: const Color(0xFFFAA269),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          "Sign Up",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Already have an account?",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                GestureDetector(
+                  onTap: callSignInPage,
+                  child: const Text(
+                    "Sign In",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

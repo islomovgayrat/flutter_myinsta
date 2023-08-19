@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/models/post_model.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
+import 'package:flutter_myinsta/services/file_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../services/bottom_sheet.dart';
@@ -18,7 +21,31 @@ class _MyUploadPageState extends State<MyUploadPage> {
   uploadPost() {
     String caption = captionController.text.toString().trim();
     if (image == null || caption.isEmpty) return;
-    moveToFeed();
+    apiPostImage();
+  }
+
+  apiPostImage() {
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadPostImage(image!).then((downloadUrl) => {
+          resPostImage(downloadUrl),
+        });
+  }
+
+  resPostImage(String downloadUrl) {
+    String caption = captionController.text.toString().trim();
+    Post post = Post(caption, downloadUrl);
+    apiStorePost(post);
+  }
+
+  apiStorePost(Post post) async {
+    //Post to posts
+    Post posted = await DBService.storePost(post);
+    //Post to feeds
+    DBService.storeFeed(post).then((value) => {
+          moveToFeed(),
+        });
   }
 
   moveToFeed() {

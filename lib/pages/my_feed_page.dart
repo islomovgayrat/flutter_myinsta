@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/post_model.dart';
 
@@ -14,22 +15,30 @@ class MyFeedPage extends StatefulWidget {
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
-  String image_1 =
-      "https://cdn.pixabay.com/photo/2023/05/01/06/55/waterfall-7962263_640.jpg";
-  String image_2 =
-      "https://cdn.pixabay.com/photo/2015/02/24/15/41/wolf-647528_1280.jpg";
-  String image_3 =
-      "https://cdn.pixabay.com/photo/2019/08/19/07/45/corgi-4415649_640.jpg";
-
   List<Post> items = [];
+  bool isLoading = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(image_1, 'The best photo from Indonesia'));
-    items.add(Post(image_2, 'The Wolf is my favorite animal'));
-    items.add(Post(image_3, 'A happy puppy on a train track'));
+    apiLoadFeeds();
+  }
+
+  apiLoadFeeds() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadFeeds().then((value) => {
+          resLoadFeeds(value),
+        });
+  }
+
+  resLoadFeeds(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
   }
 
   @override
@@ -91,28 +100,35 @@ class _MyFeedPageState extends State<MyFeedPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                      child: const Image(
-                        image: AssetImage('assets/images/img.png'),
-                        fit: BoxFit.cover,
-                        width: 40,
-                        height: 40,
-                      ),
+                      child: post.imgUser.isEmpty
+                          ? const Image(
+                              image: AssetImage('assets/images/img.png'),
+                              fit: BoxFit.cover,
+                              width: 40,
+                              height: 40,
+                            )
+                          : Image.network(
+                              post.imgUser,
+                              fit: BoxFit.cover,
+                              width: 40,
+                              height: 40,
+                            ),
                     ),
                     const SizedBox(width: 10),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "David Johnson",
-                          style: TextStyle(
+                          post.fullName.toUpperCase(),
+                          style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                         Text(
-                          "July 12, 2023",
-                          style: TextStyle(
+                          post.date,
+                          style: const TextStyle(
                             fontSize: 14,
                           ),
                         ),
@@ -147,7 +163,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
-                  EvaIcons.heart,
+                  EvaIcons.heartOutline,
                   color: Colors.red,
                 ),
               ),
@@ -162,7 +178,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
           //caption text
           Container(
             padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Text.rich(TextSpan(text: post.captionPost!)),
+            child: Text.rich(TextSpan(text: post.caption!)),
           )
         ],
       ),

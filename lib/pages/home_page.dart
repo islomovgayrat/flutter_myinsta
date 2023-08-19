@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           MyFeedPage(pageController: pageController),
           const MySearchPage(),
           MyUploadPage(pageController: pageController),
-          const MyLikePage(),
+          const MyLikesPage(),
           const MyProfilePage(),
         ],
         onPageChanged: (int index) {

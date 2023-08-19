@@ -29,13 +29,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
   String fullName = '', email = '', imgUrl = '';
   int countPosts = 0, countFollowers = 0, countFollowing = 0;
 
-  String image_1 =
-      "https://www.rd.com/wp-content/uploads/2020/05/GettyImages-1153012691.jpg";
-  String image_2 =
-      "https://imgv3.fotor.com/images/blog-cover-image/8-Tips-on-How-to-Take-Good-Pictures-of-Yourself-2020-Updated.jpg";
-  String image_3 =
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVHoY3QYwqjD32uLm_RDOcpOF8UzaWWtnlRdDso9O&s";
-
   imgFromGallery() async {
     final pickedFile =
         await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
@@ -93,13 +86,21 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(image_1, 'The best photo I have ever seen'));
-    items.add(Post(image_2, 'The best photo I have ever taken'));
-    items.add(Post(image_3, 'The best photo I have ever shown'));
-    items.add(Post(image_1, 'The best photo I have ever seen'));
-    items.add(Post(image_2, 'The best photo I have ever taken'));
-    items.add(Post(image_3, 'The best photo I have ever shown'));
     apiLoadMember();
+    apiLoadPosts();
+  }
+
+  apiLoadPosts() {
+    DBService.loadPosts().then((value) => {
+          resLoadPosts(value),
+        });
+  }
+
+  resLoadPosts(List<Post> posts) {
+    setState(() {
+      items = posts;
+      countPosts = posts.length;
+    });
   }
 
   @override
@@ -390,7 +391,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           ),
           const SizedBox(height: 5),
           Text(
-            post.captionPost.toString(),
+            post.caption.toString(),
             maxLines: 2,
             style: TextStyle(color: Colors.black87.withOpacity(0.7)),
           ),
