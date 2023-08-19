@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_myinsta/models/member_model.dart';
+import 'package:flutter_myinsta/services/auth_service.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
+import 'package:flutter_myinsta/services/file_service.dart';
 
-import '../models/member_model.dart';
 import '../models/post_model.dart';
-import '../services/auth_service.dart';
-import '../services/db_service.dart';
-import '../services/file_service.dart';
+import '../services/utils.dart';
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key});
@@ -105,6 +106,30 @@ class _MyProfilePageState extends State<MyProfilePage> {
     });
   }
 
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, 'Insta Clone', 'Do you want to delete this post?', false);
+    if (result) {
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+            apiLoadPosts(),
+          });
+    }
+  }
+
+  dialogLogOut() async {
+    var result = await Utils.dialogCommon(
+        context, 'Insta Clone', 'Do you want to Log Out?', false);
+    if (result) {
+      setState(() {
+        isLoading = true;
+      });
+      AuthService.signOutUser(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +149,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
         actions: [
           IconButton(
             onPressed: () {
-              AuthService.signOutUser(context);
+              dialogLogOut();
             },
             icon: const Icon(Icons.exit_to_app),
             color: const Color.fromRGBO(245, 96, 64, 1),
@@ -385,30 +410,35 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   Widget itemOfPost(Post post) {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      child: Column(
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              fit: BoxFit.cover,
-              imageUrl: post.imgPost,
-              width: double.infinity,
-              placeholder: (ctx, url) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              errorWidget: (ctx, url, error) => const Center(
-                child: Icon(Icons.error),
+    return GestureDetector(
+      onLongPress: () {
+        dialogRemovePost(post);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Expanded(
+              child: CachedNetworkImage(
+                fit: BoxFit.cover,
+                imageUrl: post.imgPost,
+                width: double.infinity,
+                placeholder: (ctx, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (ctx, url, error) => const Center(
+                  child: Icon(Icons.error),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            post.caption,
-            style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-            maxLines: 2,
-          ),
-        ],
+            const SizedBox(height: 3),
+            Text(
+              post.caption,
+              style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+              maxLines: 2,
+            ),
+          ],
+        ),
       ),
     );
   }

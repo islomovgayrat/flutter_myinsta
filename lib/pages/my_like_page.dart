@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/post_model.dart';
-import '../services/db_service.dart';
+import '../services/utils.dart';
 
 class MyLikesPage extends StatefulWidget {
   const MyLikesPage({super.key});
@@ -47,6 +48,19 @@ class _MyLikesPageState extends State<MyLikesPage> {
     // TODO: implement initState
     super.initState();
     apiLoadLikes();
+  }
+
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, 'Insta Clone', 'Do you want to delete this post?', false);
+    if (result) {
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+            apiLoadLikes(),
+          });
+    }
   }
 
   @override
@@ -136,8 +150,12 @@ class _MyLikesPageState extends State<MyLikesPage> {
                   ],
                 ),
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz),
+                  onPressed: () {
+                    dialogRemovePost(post);
+                  },
+                  icon: post.mine
+                      ? const Icon(Icons.more_horiz)
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),

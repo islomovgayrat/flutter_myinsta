@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/post_model.dart';
-import '../services/db_service.dart';
 import '../services/utils.dart';
 
 class MyFeedPage extends StatefulWidget {
@@ -61,6 +61,19 @@ class _MyFeedPageState extends State<MyFeedPage> {
       isLoading = false;
       post.liked = false;
     });
+  }
+
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, 'Insta Clone', 'Do you want to delete this post?', false);
+    if (result) {
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+            _apiLoadFeeds(),
+          });
+    }
   }
 
   @override
@@ -157,7 +170,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     ? IconButton(
                         icon: const Icon(Icons.more_horiz),
                         onPressed: () {
-                          //_dialogRemovePost(post);
+                          dialogRemovePost(post);
                         },
                       )
                     : const SizedBox.shrink(),
@@ -218,8 +231,8 @@ class _MyFeedPageState extends State<MyFeedPage> {
               softWrap: true,
               overflow: TextOverflow.visible,
               text: TextSpan(
-                  text: "${post.caption}",
-                  style: TextStyle(color: Colors.black)),
+                  text: post.caption,
+                  style: const TextStyle(color: Colors.black)),
             ),
           ),
         ],

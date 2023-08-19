@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/member_model.dart';
-import '../services/db_service.dart';
 
 class MySearchPage extends StatefulWidget {
   const MySearchPage({super.key});
@@ -70,7 +70,6 @@ class _MySearchPageState extends State<MySearchPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: const Text(
           "Search",
           style: TextStyle(

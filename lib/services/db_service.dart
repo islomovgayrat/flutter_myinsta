@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_myinsta/services/utils.dart';
 
@@ -17,12 +19,12 @@ class DBService {
   //Member related
   static Future storeMember(Member member) async {
     member.uId = AuthService.currentUserId();
-    // Map<String, dynamic> params = await Utils.deviceParams();
-    // print(params);
-    //
-    // member.deviceId = params['deviceId'];
-    // member.deviceType = params['deviceType'];
-    // member.deviceToken = params['deviceToken'];
+    Map<String, dynamic> params = await Utils.deviceParams();
+    print(params);
+
+    member.deviceId = params['deviceId'];
+    member.deviceType = params['deviceType'];
+    member.deviceToken = params['deviceToken'];
 
     return fireStore
         .collection(folderUsers)
@@ -133,7 +135,9 @@ class DBService {
         .get();
 
     querySnapshot.docs.forEach((result) {
-      posts.add(Post.fromJson(result.data()));
+      Post post = Post.fromJson(result.data());
+      if (post.uid == uid) post.mine = true;
+      posts.add(post);
     });
     return posts;
   }
@@ -233,16 +237,6 @@ class DBService {
     }
   }
 
-  // static Future removeFeed(Post post) async {
-  //   String uid = AuthService.currentUserId();
-  //   return await fireStore
-  //       .collection(folderUsers)
-  //       .doc(uid)
-  //       .collection(folderFeeds)
-  //       .doc(post.id)
-  //       .set(post.toJson());
-  // }
-
   static Future removePostFromMyFeed(Member someone) async {
     List<Post> posts = [];
     var querySnapshot = await fireStore
@@ -264,6 +258,17 @@ class DBService {
         .collection(folderUsers)
         .doc(uid)
         .collection(folderFeeds)
+        .doc(post.id)
+        .delete();
+  }
+
+  static Future removePost(Post post) async {
+    String uid = AuthService.currentUserId();
+    await removeFeed(post);
+    return fireStore
+        .collection(folderUsers)
+        .doc(uid)
+        .collection(folderPosts)
         .doc(post.id)
         .delete();
   }

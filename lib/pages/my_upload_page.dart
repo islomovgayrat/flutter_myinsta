@@ -2,10 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../models/post_model.dart';
-import '../services/db_service.dart';
-import '../services/file_service.dart';
+import 'package:flutter_myinsta/models/post_model.dart';
+import 'package:flutter_myinsta/services/db_service.dart';
+import 'package:flutter_myinsta/services/file_service.dart';
 
 class MyUploadPage extends StatefulWidget {
   final PageController pageController;
@@ -90,7 +89,11 @@ class _MyUploadPageState extends State<MyUploadPage> {
         elevation: 0,
         title: const Text(
           "Upload",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: 'Billabong',
+            fontSize: 25,
+          ),
         ),
         actions: [
           IconButton(
