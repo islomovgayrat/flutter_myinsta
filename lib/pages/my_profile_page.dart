@@ -1,25 +1,24 @@
 import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_myinsta/models/member_model.dart';
-import 'package:flutter_myinsta/services/auth_service.dart';
-import 'package:flutter_myinsta/services/db_service.dart';
-import 'package:flutter_myinsta/services/file_service.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/member_model.dart';
 import '../models/post_model.dart';
+import '../services/auth_service.dart';
+import '../services/db_service.dart';
+import '../services/file_service.dart';
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({super.key});
-  static const String id = 'profile_id';
 
   @override
   State<MyProfilePage> createState() => _MyProfilePageState();
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
-  int axisCount = 1;
-  var isOne = false;
+  int axisCount = 2;
 
   var isLoading = false;
   File? image;
@@ -47,7 +46,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     apiChangePhoto();
   }
 
-  apiChangePhoto() {
+  void apiChangePhoto() {
     if (image == null) return;
     setState(() {
       isLoading = true;
@@ -73,12 +72,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
         });
   }
 
-  showMemberInfo(Member member) {
+  void showMemberInfo(Member member) {
     setState(() {
       isLoading = false;
       fullName = member.fullName;
       email = member.email;
       imgUrl = member.imgUrl;
+      countFollowing = member.followingCount;
+      countFollowers = member.followerCount;
     });
   }
 
@@ -86,17 +87,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     apiLoadMember();
     apiLoadPosts();
   }
 
   apiLoadPosts() {
-    DBService.loadPosts().then((value) => {
-          resLoadPosts(value),
+    DBService.loadPost().then((value) => {
+          resLoadPost(value),
         });
   }
 
-  resLoadPosts(List<Post> posts) {
+  resLoadPost(List<Post> posts) {
     setState(() {
       items = posts;
       countPosts = posts.length;
@@ -108,9 +110,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.white,
         title: const Text(
           "Profile",
           style: TextStyle(
@@ -125,7 +127,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
               AuthService.signOutUser(context);
             },
             icon: const Icon(Icons.exit_to_app),
-            color: const Color.fromRGBO(193, 53, 132, 1),
+            color: const Color.fromRGBO(245, 96, 64, 1),
           ),
         ],
       ),
@@ -133,9 +135,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.all(10),
             child: Column(
               children: [
+                //my photo
                 Stack(
                   children: [
                     GestureDetector(
@@ -239,96 +242,104 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
 
-                //fullName
+                //my information
                 Text(
-                  fullName.toString().toUpperCase(),
+                  fullName.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 5),
-                //email
+                const SizedBox(height: 3),
                 Text(
-                  email.toString(),
-                  style: const TextStyle(color: Colors.grey),
+                  email,
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 14,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                //followers posts
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            countPosts.toString(),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+
+                //my counts
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  height: 50,
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                countPosts.toString(),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                "POSTS",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 3),
-                          const Text(
-                            "POSTS",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                countFollowers.toString(),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                "FOLLOWERS",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                countFollowing.toString(),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                "FOLLOWING",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            countFollowers.toString(),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          const Text(
-                            "FOLLOWERS",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            countFollowing.toString(),
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          const Text(
-                            "FOLLOWING",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 12),
+
                 //list or grid
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -352,16 +363,17 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     const SizedBox(),
                   ],
                 ),
+
                 //my posts
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: axisCount,
-                    ),
-                    itemCount: items.length,
                     itemBuilder: (ctx, index) {
                       return itemOfPost(items[index]);
                     },
+                    itemCount: items.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: axisCount,
+                    ),
                   ),
                 ),
               ],
@@ -379,21 +391,22 @@ class _MyProfilePageState extends State<MyProfilePage> {
         children: [
           Expanded(
             child: CachedNetworkImage(
-              imageUrl: post.imgPost.toString(),
-              placeholder: (ctx, url) =>
-                  const Center(child: CircularProgressIndicator()),
+              fit: BoxFit.cover,
+              imageUrl: post.imgPost,
+              width: double.infinity,
+              placeholder: (ctx, url) => const Center(
+                child: CircularProgressIndicator(),
+              ),
               errorWidget: (ctx, url, error) => const Center(
                 child: Icon(Icons.error),
               ),
-              width: double.infinity,
-              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 3),
           Text(
-            post.caption.toString(),
-            maxLines: 2,
+            post.caption,
             style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+            maxLines: 2,
           ),
         ],
       ),

@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/member_model.dart';
+import '../services/db_service.dart';
 
 class MySearchPage extends StatefulWidget {
   const MySearchPage({super.key});
-  static const String id = 'search_id';
 
   @override
   State<MySearchPage> createState() => _MySearchPageState();
 }
 
 class _MySearchPageState extends State<MySearchPage> {
-  List<Member> items = [];
   var isLoading = false;
   TextEditingController searchController = TextEditingController();
 
-  apiSearchMember(String keyword) {
+  List<Member> items = [];
+
+  void apiSearchMembers(String keyword) {
     setState(() {
       isLoading = true;
     });
@@ -32,11 +32,35 @@ class _MySearchPageState extends State<MySearchPage> {
     });
   }
 
+  apiFollowMember(Member someone) async {
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.followMember(someone);
+    setState(() {
+      someone.followed = true;
+      isLoading = false;
+    });
+    DBService.storePostToMyFeed(someone);
+  }
+
+  apiUnFollowMember(Member someone) async {
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.unFollowMember(someone);
+    setState(() {
+      someone.followed = false;
+      isLoading = false;
+    });
+    DBService.removePostFromMyFeed(someone);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    apiSearchMember('');
+    apiSearchMembers('');
   }
 
   @override
@@ -44,9 +68,9 @@ class _MySearchPageState extends State<MySearchPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.white,
         title: const Text(
           "Search",
           style: TextStyle(
@@ -59,27 +83,32 @@ class _MySearchPageState extends State<MySearchPage> {
       body: Stack(
         children: [
           Container(
-            padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-                //search
+                //search member
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  height: 45,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(7),
                     color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(7),
                   ),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: const InputDecoration(
+                  child: const TextField(
+                    style: TextStyle(color: Colors.black87),
+                    decoration: InputDecoration(
                       border: InputBorder.none,
+                      icon: Icon(Icons.search, color: Colors.grey),
                       hintText: "Search",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      icon: Icon(Icons.search),
-                      iconColor: Colors.grey,
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ),
+
                 Expanded(
                   child: ListView.builder(
                     itemCount: items.length,
@@ -98,54 +127,45 @@ class _MySearchPageState extends State<MySearchPage> {
 
   Widget itemOfMember(Member member) {
     return SizedBox(
-      height: 80,
+      height: 90,
       child: Row(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(70),
+              border: Border.all(
+                width: 1.5,
+                color: const Color.fromRGBO(193, 53, 132, 1),
+              ),
+            ),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(22.5),
+                child: member.imgUrl.isEmpty
+                    ? const Image(
+                        image: AssetImage('assets/images/img.png'),
+                        fit: BoxFit.cover,
+                        height: 45,
+                        width: 45,
+                      )
+                    : Image.network(
+                        member.imgUrl,
+                        fit: BoxFit.cover,
+                        height: 45,
+                        width: 45,
+                      )),
+          ),
+          const SizedBox(width: 15),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(70),
-                  border: Border.all(
-                    width: 1.5,
-                    color: const Color.fromRGBO(245, 96, 64, 1),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(22.5),
-                  child: member.imgUrl.isEmpty
-                      ? const Image(
-                          image: AssetImage('assets/images/img.png'),
-                          fit: BoxFit.cover,
-                          height: 45,
-                          width: 45,
-                        )
-                      : Image.network(
-                          member.imgUrl,
-                          fit: BoxFit.cover,
-                          height: 45,
-                          width: 45,
-                        ),
-                ),
+              Text(
+                member.fullName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 10),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.fullName,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(member.email),
-                ],
-              ),
+              const SizedBox(height: 3),
+              Text(member.email, style: const TextStyle(color: Colors.black54)),
             ],
           ),
           Expanded(
@@ -153,16 +173,24 @@ class _MySearchPageState extends State<MySearchPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    if (member.followed) {
+                      apiUnFollowMember(member);
+                    } else {
+                      apiFollowMember(member);
+                    }
+                  },
                   child: Container(
                     height: 30,
                     width: 100,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.grey.shade500),
+                      borderRadius: BorderRadius.circular(3),
+                      border: Border.all(width: 1, color: Colors.grey),
                     ),
-                    child: const Center(
-                      child: Text("Follow"),
+                    child: Center(
+                      child: member.followed
+                          ? const Text("Following")
+                          : const Text('Follow'),
                     ),
                   ),
                 ),

@@ -9,6 +9,10 @@ class Member {
   String deviceType = '';
   String deviceToken = '';
 
+  bool followed = false;
+  int followerCount = 0;
+  int followingCount = 0;
+
   Member(this.fullName, this.email);
 
   Member.fromJson(Map<String, dynamic> json)

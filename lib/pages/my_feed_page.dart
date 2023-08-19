@@ -1,43 +1,65 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_myinsta/services/db_service.dart';
 
 import '../models/post_model.dart';
+import '../services/db_service.dart';
+import '../services/utils.dart';
 
 class MyFeedPage extends StatefulWidget {
-  PageController pageController = PageController();
-  MyFeedPage({super.key, required this.pageController});
-  static const String id = 'feed_id';
+  final PageController? pageController;
+
+  const MyFeedPage({Key? key, this.pageController}) : super(key: key);
 
   @override
   State<MyFeedPage> createState() => _MyFeedPageState();
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
-  List<Post> items = [];
   bool isLoading = false;
+  List<Post> items = [];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    apiLoadFeeds();
-  }
-
-  apiLoadFeeds() {
+  _apiLoadFeeds() {
     setState(() {
       isLoading = true;
     });
     DBService.loadFeeds().then((value) => {
-          resLoadFeeds(value),
+          _resLoadFeeds(value),
         });
   }
 
-  resLoadFeeds(List<Post> posts) {
+  _resLoadFeeds(List<Post> posts) {
     setState(() {
       items = posts;
       isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _apiLoadFeeds();
+  }
+
+  apiPostLike(Post post) async {
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.likePost(post, true);
+    setState(() {
+      isLoading = false;
+      post.liked = true;
+    });
+  }
+
+  apiPostUnLike(Post post) async {
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.likePost(post, false);
+    setState(() {
+      isLoading = false;
+      post.liked = false;
     });
   }
 
@@ -48,70 +70,69 @@ class _MyFeedPageState extends State<MyFeedPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: true,
         title: const Text(
           "Instagram",
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 30,
-            fontFamily: "Billabong",
-          ),
+              color: Colors.black, fontFamily: 'Billabong', fontSize: 30),
         ),
         actions: [
           IconButton(
             onPressed: () {
-              widget.pageController.animateToPage(
-                2,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeIn,
-              );
+              widget.pageController!.animateToPage(2,
+                  duration: const Duration(microseconds: 200),
+                  curve: Curves.easeIn);
             },
-            icon: const Icon(
-              Icons.camera_alt,
-              color: Color.fromRGBO(245, 96, 64, 1),
-            ),
+            icon: const Icon(Icons.camera_alt),
+            color: const Color.fromRGBO(245, 96, 64, 1),
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (ctx, index) {
-          return itemOfPost(items[index]);
-        },
+      body: Stack(
+        children: [
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (ctx, index) {
+              return _itemOfPost(items[index]);
+            },
+          ),
+          isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : const SizedBox.shrink(),
+        ],
       ),
     );
   }
 
-  Widget itemOfPost(Post post) {
+  Widget _itemOfPost(Post post) {
     return Container(
       color: Colors.white,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Divider(thickness: 1.5),
-          //user info
+          const Divider(),
+          //#user info
           Container(
-            padding: const EdgeInsets.only(left: 10, right: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(40),
                       child: post.imgUser.isEmpty
                           ? const Image(
-                              image: AssetImage('assets/images/img.png'),
-                              fit: BoxFit.cover,
+                              image: AssetImage("assets/images/img.png"),
                               width: 40,
                               height: 40,
+                              fit: BoxFit.cover,
                             )
                           : Image.network(
                               post.imgUser,
-                              fit: BoxFit.cover,
                               width: 40,
                               height: 40,
+                              fit: BoxFit.cover,
                             ),
                     ),
                     const SizedBox(width: 10),
@@ -119,67 +140,88 @@ class _MyFeedPageState extends State<MyFeedPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          post.fullName.toUpperCase(),
+                          post.fullName,
                           style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                              fontWeight: FontWeight.bold, color: Colors.black),
                         ),
+                        const SizedBox(height: 3),
                         Text(
                           post.date,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.normal),
                         ),
                       ],
                     ),
                   ],
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz),
-                ),
+                post.mine
+                    ? IconButton(
+                        icon: const Icon(Icons.more_horiz),
+                        onPressed: () {
+                          //_dialogRemovePost(post);
+                        },
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          //network image
+          //#post image
+          const SizedBox(height: 8),
           CachedNetworkImage(
-            imageUrl: post.imgPost!,
-            fit: BoxFit.cover,
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width,
+            imageUrl: post.imgPost,
             placeholder: (context, url) => const Center(
               child: CircularProgressIndicator(),
             ),
-            errorWidget: (context, url, error) => const Center(
-              child: Icon(Icons.error),
-            ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            fit: BoxFit.cover,
           ),
-          //like share
+
+          //#like share
           Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  EvaIcons.heartOutline,
-                  color: Colors.red,
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  EvaIcons.share,
-                ),
-              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (!post.liked) {
+                        apiPostLike(post);
+                      } else {
+                        apiPostUnLike(post);
+                      }
+                    },
+                    icon: post.liked
+                        ? const Icon(
+                            EvaIcons.heart,
+                            color: Colors.red,
+                          )
+                        : const Icon(
+                            EvaIcons.heartOutline,
+                            color: Colors.black,
+                          ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      EvaIcons.shareOutline,
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
-          //caption text
+
+          //#caption
           Container(
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Text.rich(TextSpan(text: post.caption!)),
-          )
+            width: MediaQuery.of(context).size.width,
+            margin: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: RichText(
+              softWrap: true,
+              overflow: TextOverflow.visible,
+              text: TextSpan(
+                  text: "${post.caption}",
+                  style: TextStyle(color: Colors.black)),
+            ),
+          ),
         ],
       ),
     );

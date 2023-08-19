@@ -3,6 +3,7 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 
 import '../models/post_model.dart';
+import '../services/db_service.dart';
 
 class MyLikesPage extends StatefulWidget {
   const MyLikesPage({super.key});
@@ -12,23 +13,40 @@ class MyLikesPage extends StatefulWidget {
 }
 
 class _MyLikesPageState extends State<MyLikesPage> {
-  String image_1 =
-      "https://www.rd.com/wp-content/uploads/2020/05/GettyImages-1153012691.jpg";
-  String image_2 =
-      "https://imgv3.fotor.com/images/blog-cover-image/8-Tips-on-How-to-Take-Good-Pictures-of-Yourself-2020-Updated.jpg";
-  String image_3 =
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfVHoY3QYwqjD32uLm_RDOcpOF8UzaWWtnlRdDso9O&s";
-
   bool isLoading = false;
   List<Post> items = [];
+
+  apiLoadLikes() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadLikes().then((value) => {
+          resLoadLikes(value),
+        });
+  }
+
+  resLoadLikes(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
+
+  apiPostUnLikes(Post post) {
+    setState(() {
+      isLoading = true;
+      post.liked = false;
+    });
+    DBService.likePost(post, false).then((value) => {
+          apiLoadLikes(),
+        });
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    items.add(Post(image_1, 'The best photo I have ever seen'));
-    items.add(Post(image_2, 'The best photo I have ever taken'));
-    items.add(Post(image_3, 'The best photo I have ever shown'));
+    apiLoadLikes();
   }
 
   @override
@@ -81,28 +99,35 @@ class _MyLikesPageState extends State<MyLikesPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                      child: const Image(
-                        image: AssetImage(
-                          'assets/images/img.png',
-                        ),
-                        width: 40,
-                        height: 40,
-                      ),
+                      child: post.imgUser.isEmpty
+                          ? const Image(
+                              image: AssetImage(
+                                'assets/images/img.png',
+                              ),
+                              width: 40,
+                              height: 40,
+                            )
+                          : Image.network(
+                              post.imgUser,
+                              fit: BoxFit.cover,
+                              height: 40,
+                              width: 40,
+                            ),
                     ),
                     const SizedBox(width: 10),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Islomov Gayratjon',
-                          style: TextStyle(
+                          post.fullName.toUpperCase(),
+                          style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          '2023-09-24 19:40',
-                          style: TextStyle(
+                          post.date,
+                          style: const TextStyle(
                             fontWeight: FontWeight.normal,
                           ),
                         ),
@@ -132,11 +157,18 @@ class _MyLikesPageState extends State<MyLikesPage> {
           Row(
             children: [
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  EvaIcons.heart,
-                  color: Colors.red,
-                ),
+                onPressed: () {
+                  apiPostUnLikes(post);
+                },
+                icon: post.liked
+                    ? const Icon(
+                        EvaIcons.heart,
+                        color: Colors.red,
+                      )
+                    : const Icon(
+                        EvaIcons.heartOutline,
+                        color: Colors.black,
+                      ),
               ),
               IconButton(
                 onPressed: () {},

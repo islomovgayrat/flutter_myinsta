@@ -1,30 +1,50 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_myinsta/models/post_model.dart';
-import 'package:flutter_myinsta/services/db_service.dart';
-import 'package:flutter_myinsta/services/file_service.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../services/bottom_sheet.dart';
+import '../models/post_model.dart';
+import '../services/db_service.dart';
+import '../services/file_service.dart';
 
 class MyUploadPage extends StatefulWidget {
-  PageController pageController = PageController();
-  MyUploadPage({super.key, required this.pageController});
-  static const String id = 'upload_id';
+  final PageController pageController;
+
+  const MyUploadPage({super.key, required this.pageController});
 
   @override
   State<MyUploadPage> createState() => _MyUploadPageState();
 }
 
 class _MyUploadPageState extends State<MyUploadPage> {
+  bool isLoading = false;
+  TextEditingController captionController = TextEditingController();
+  final ImagePicker picker = ImagePicker();
+  File? image;
+
+  imgFromGallery() async {
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    setState(() {
+      image = File(pickedFile!.path);
+    });
+  }
+
+  imgFromGallery2() async {
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
+    setState(() {
+      image = File(pickedFile!.path);
+    });
+  }
+
   uploadPost() {
     String caption = captionController.text.toString().trim();
     if (image == null || caption.isEmpty) return;
     apiPostImage();
   }
 
-  apiPostImage() {
+  void apiPostImage() {
     setState(() {
       isLoading = true;
     });
@@ -54,40 +74,34 @@ class _MyUploadPageState extends State<MyUploadPage> {
     });
     captionController.text = '';
     image = null;
-    widget.pageController.animateToPage(
+    widget.pageController!.animateToPage(
       0,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeIn,
     );
   }
 
-  var isLoading = false;
-  final ImagePicker picker = ImagePicker();
-  File? image;
-
-  TextEditingController captionController = TextEditingController();
-
-  imgFromGallery() async {
-    final pickedFile =
-        await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
-    setState(() {
-      image = File(pickedFile!.path);
-    });
-  }
-
-  imgFromGallery2() async {
-    final pickedFile =
-        await picker.pickImage(source: ImageSource.camera, imageQuality: 50);
-    setState(() {
-      image = File(pickedFile!.path);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: getAppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          "Upload",
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              uploadPost();
+            },
+            icon: const Icon(Icons.drive_folder_upload),
+            color: const Color.fromRGBO(245, 96, 64, 1),
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -95,7 +109,6 @@ class _MyUploadPageState extends State<MyUploadPage> {
               height: MediaQuery.of(context).size.height,
               child: Column(
                 children: [
-                  //image
                   GestureDetector(
                     onTap: () {
                       showModalBottomSheet(
@@ -215,13 +228,16 @@ class _MyUploadPageState extends State<MyUploadPage> {
                     margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
                     child: TextField(
                       controller: captionController,
+                      style: const TextStyle(color: Colors.black),
                       keyboardType: TextInputType.multiline,
                       minLines: 1,
                       maxLines: 5,
                       decoration: const InputDecoration(
-                        hintText: "Caption",
-                        hintStyle:
-                            TextStyle(fontSize: 17, color: Colors.black38),
+                        hintText: 'Caption',
+                        hintStyle: TextStyle(
+                          color: Colors.black38,
+                          fontSize: 17,
+                        ),
                       ),
                     ),
                   ),
@@ -229,34 +245,13 @@ class _MyUploadPageState extends State<MyUploadPage> {
               ),
             ),
           ),
+          isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
     );
   }
-
-  getAppBar() => AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        elevation: 0,
-        title: const Text(
-          'Upload',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Billabong",
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              uploadPost();
-            },
-            icon: const Icon(
-              Icons.drive_folder_upload,
-              color: Color.fromRGBO(245, 96, 64, 1),
-            ),
-          ),
-        ],
-      );
 }

@@ -34,10 +34,7 @@ class _SignUpPageState extends State<SignUpPage> {
     String email = emailController.text.toString().trim();
     String password = passwordController.text.toString().trim();
     String cPassword = cPasswordController.text.toString().trim();
-    if (fullName.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        validate(emailController.text) == true) return;
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty) return;
     if (cPassword != password) return;
 
     setState(() {
